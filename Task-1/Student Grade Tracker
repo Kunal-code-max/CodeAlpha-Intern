@@ -1,0 +1,142 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+/**
+ * A simple console‑based application to manage student grades.
+ *
+ * Features:
+ *  • Add new students with their scores
+ *  • Compute average, highest, and lowest scores
+ *  • Display a summary report of all students
+ *
+ * Compile:  javac StudentGradeManager.java
+ * Run:      java  StudentGradeManager
+ */
+public class StudentGradeManager {
+
+    /** Represents a student with a name and a numeric score. */
+    private static class Student {
+        private final String name;
+        private final double score;
+
+        Student(String name, double score) {
+            this.name = name;
+            this.score = score;
+        }
+
+        public String getName()   { return name; }
+        public double getScore() { return score; }
+    }
+
+    private final List<Student> students = new ArrayList<>();
+    private final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        new StudentGradeManager().run();
+    }
+
+    private void run() {
+        System.out.println("========================================");
+        System.out.println("        Student Grade Manager v1.0       ");
+        System.out.println("========================================\n");
+
+        boolean running = true;
+        while (running) {
+            showMenu();
+            int choice = readInt("Choose an option: ");
+            switch (choice) {
+                case 1 -> addStudent();
+                case 2 -> showSummaryReport();
+                case 3 -> running = false;
+                default -> System.out.println("\nInvalid option. Please try again.\n");
+            }
+        }
+
+        System.out.println("\nThank you for using Student Grade Manager. Goodbye!");
+    }
+
+    /** Displays the main menu. */
+    private void showMenu() {
+        System.out.println("\n1. Add Student & Score");
+        System.out.println("2. Show Summary Report");
+        System.out.println("3. Exit\n");
+    }
+
+    /** Adds a new student record after prompting the user. */
+    private void addStudent() {
+        System.out.print("Enter student name: ");
+        String name = scanner.nextLine().trim();
+        if (name.isEmpty()) {
+            System.out.println("Name cannot be empty. Student not added.\n");
+            return;
+        }
+
+        double score = readDouble("Enter score (0‑100): ", 0, 100);
+        students.add(new Student(name, score));
+        System.out.printf("Added %s with score %.2f\n\n", name, score);
+    }
+
+    /** Produces and displays the summary report. */
+    private void showSummaryReport() {
+        if (students.isEmpty()) {
+            System.out.println("\nNo students to display. Add some first!\n");
+            return;
+        }
+
+        System.out.println("\n------------ SUMMARY REPORT ------------");
+        System.out.printf("%-4s | %-20s | %6s\n", "No", "Name", "Score");
+        System.out.println("----------------------------------------");
+
+        double total = 0;
+        double highest = Double.MIN_VALUE;
+        double lowest  = Double.MAX_VALUE;
+        int index = 1;
+
+        for (Student s : students) {
+            double sc = s.getScore();
+            System.out.printf("%-4d | %-20s | %6.2f\n", index++, s.getName(), sc);
+            total += sc;
+            highest = Math.max(highest, sc);
+            lowest  = Math.min(lowest, sc);
+        }
+
+        double average = total / students.size();
+        System.out.println("----------------------------------------");
+        System.out.printf("Average Score : %.2f\n", average);
+        System.out.printf("Highest Score : %.2f\n", highest);
+        System.out.printf("Lowest  Score : %.2f\n", lowest);
+        System.out.println("----------------------------------------\n");
+    }
+
+    /** Reads an integer from stdin with prompt and basic validation. */
+    private int readInt(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine();
+            try {
+                return Integer.parseInt(input.trim());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Please enter a valid integer.");
+            }
+        }
+    }
+
+    /** Reads a double within [min,max] range, inclusive. */
+    private double readDouble(String prompt, double min, double max) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine();
+            try {
+                double value = Double.parseDouble(input.trim());
+                if (value < min || value > max) {
+                    System.out.printf("Value must be between %.2f and %.2f.%n", min, max);
+                } else {
+                    return value;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Please enter a valid decimal value.");
+            }
+        }
+    }
+}
